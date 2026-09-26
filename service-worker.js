@@ -1,14 +1,13 @@
-const CACHE_NAME = 'eval-compesptec4-v2';
+const CACHE_NAME = 'eval-compesptec4-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './CETEC41.html',
-  './CETEC42.html',
-  './CETEC43.html',
-  './CETEC44.html',
-  './CETEC45.html',
-  './CETEC46.html',
-  './manifest.json'
+  './manifest.json',
+  './favicon.ico',
+  './favicon-16x16.png',
+  './favicon-32x32.png',
+  './icon-192.png',
+  './icon-512.png'
   // Nota: Las librerías externas (Tailwind, FontAwesome) requieren conexión
   // a menos que las descargues y las sirvas localmente.
 ];
