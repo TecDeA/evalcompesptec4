@@ -24,11 +24,15 @@ self.addEventListener('install', (event) => {
 });
 
 // Activación y limpieza de caches antiguas
+// Solo borrar cachés de esta propia app (por prefijo): no tocar las cachés
+// del portal ni las de otras apps alojadas en subcarpetas del mismo dominio.
+const esCachePropia = (c) => c.startsWith('eval-compesptec4-');
+
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(keyList.map((key) => {
-        if (key !== CACHE_NAME) {
+        if (key !== CACHE_NAME && esCachePropia(key)) {
           return caches.delete(key);
         }
       }));
