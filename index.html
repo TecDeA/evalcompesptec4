@@ -280,6 +280,33 @@ body{
             color: #95a5a6;
         }
 
+        /* Chip de versión dinámico (alimentado por APP_VERSION de sw.js) */
+#portal-view .version-chip{
+            display: none;
+        }
+
+#portal-view .version-chip.ready{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 0.9rem;
+            padding: 5px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(52, 152, 219, 0.55);
+            background: rgba(52, 152, 219, 0.14);
+            color: #5dade2;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+            letter-spacing: 0.04em;
+            animation: chip-in 0.35s ease both;
+            user-select: none;
+        }
+
+        @keyframes chip-in{
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: none; }
+        }
+
         /* Media Queries */
         @media (max-width: 768px) {
 #portal-view main{
@@ -2169,6 +2196,10 @@ body{
                 <i class="fa-solid fa-book-open"></i> Ver Concreciones Curriculares
             </a>
             <p class="credits">Elaborado por Ángel Millán | Departamento de Tecnología del IES Virgen de Villadiego, de Peñaflor (Sevilla)</p>
+            <span id="app-version-chip" class="version-chip" title="Versión de la aplicación">
+                <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                <span id="app-version-text"></span>
+            </span>
         </footer>
     </div>
 
@@ -4932,7 +4963,7 @@ body{
     <script>
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
+        navigator.serviceWorker.register('./sw.js')
             .then(registration => {
                 console.log('Service Worker registrado con éxito:', registration.scope);
             })
@@ -4941,6 +4972,87 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+    </script>
+
+    <script>
+/* ==== Chip de versión dinámico ====
+   La única fuente de verdad de la versión es APP_VERSION (en sw.js).
+   1) Se pregunta al Service Worker activo mediante un MessageChannel
+      (mensaje GET_VERSION).
+   2) Respaldo: se descarga sw.js y se extrae la constante APP_VERSION
+      (así el chip funciona incluso antes de que el SW tome el control
+      o en la primera visita).
+   El chip se refresca solo cuando un nuevo SW pase a controlar la página. */
+(function () {
+    const chip = document.getElementById('app-version-chip');
+    const chipText = document.getElementById('app-version-text');
+    if (!chip || !chipText) return;
+
+    const swContainer = ('serviceWorker' in navigator) ? navigator.serviceWorker : null;
+
+    function render(version, source) {
+        const v = String(version);
+        chipText.textContent = v.startsWith('v') ? v : 'v' + v;
+        chip.classList.add('ready');
+        chip.title = 'Versión de la aplicación: ' + v + ' · obtenida del ' + source;
+    }
+
+    // 1) Preguntar al Service Worker que controla la página
+    function askActiveSW() {
+        return new Promise((resolve) => {
+            const controller = swContainer && swContainer.controller;
+            if (!controller) { resolve(null); return; }
+            let settled = false;
+            const finish = (value) => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                resolve(value);
+            };
+            const timer = setTimeout(() => finish(null), 2000);
+            const channel = new MessageChannel();
+            channel.port1.onmessage = (event) => {
+                const data = event.data || {};
+                finish(data.type === 'VERSION' ? data.version : null);
+            };
+            controller.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
+        });
+    }
+
+    // 2) Respaldo: leer la constante APP_VERSION del propio fichero sw.js
+    function readFromSWFile() {
+        return fetch('./sw.js', { cache: 'no-cache' })
+            .then((res) => (res.ok ? res.text() : ''))
+            .then((text) => {
+                const match = /APP_VERSION\s*=\s*['"]([^'"]+)['"]/.exec(text);
+                return match ? match[1] : null;
+            })
+            .catch(() => null);
+    }
+
+    function updateChip() {
+        askActiveSW().then((version) => {
+            if (version) {
+                render(version, 'service worker activo');
+            } else {
+                readFromSWFile().then((v) => {
+                    if (v) render(v, 'fichero sw.js');
+                });
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateChip);
+    } else {
+        updateChip();
+    }
+
+    // Refrescar el chip cuando un nuevo SW tome el control de la página
+    if (swContainer) {
+        swContainer.addEventListener('controllerchange', updateChip);
+    }
+})();
     </script>
 
 </body>
