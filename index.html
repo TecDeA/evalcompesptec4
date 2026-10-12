@@ -280,7 +280,8 @@ body{
             color: #95a5a6;
         }
 
-        /* Chip de versión dinámico (alimentado por APP_VERSION de sw.js) */
+        /* Chip de versión dinámico (junto al título del banner superior;
+           alimentado por APP_VERSION de sw.js) */
 #portal-view .version-chip{
             display: none;
         }
@@ -288,16 +289,18 @@ body{
 #portal-view .version-chip.ready{
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            margin-top: 0.9rem;
-            padding: 5px 14px;
+            gap: 7px;
+            margin-left: 10px;
+            padding: 4px 12px;
             border-radius: 999px;
-            border: 1px solid rgba(52, 152, 219, 0.55);
-            background: rgba(52, 152, 219, 0.14);
-            color: #5dade2;
+            border: 1px solid rgba(236, 240, 241, 0.45);
+            background: rgba(0, 0, 0, 0.18);
+            color: #d6eaf8;
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-            font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+            font-size: clamp(0.68rem, 1.8vw, 0.8rem);
+            font-weight: 500;
             letter-spacing: 0.04em;
+            vertical-align: middle;
             animation: chip-in 0.35s ease both;
             user-select: none;
         }
@@ -2091,7 +2094,12 @@ body{
     <div id="portal-view">
     <header>
             <h1>Evaluación de Competencias Específicas</h1>
-            <h2>Tecnología 4º ESO</h2>
+            <h2>Tecnología 4º ESO
+                <span id="app-version-chip" class="version-chip" title="Versión de la aplicación">
+                    <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                    <span id="app-version-text"></span>
+                </span>
+            </h2>
             <p class="legal">Basado en la Orden de 30 de mayo de 2023 (Andalucía)</p>
         </header>
     
@@ -2196,10 +2204,6 @@ body{
                 <i class="fa-solid fa-book-open"></i> Ver Concreciones Curriculares
             </a>
             <p class="credits">Elaborado por Ángel Millán | Departamento de Tecnología del IES Virgen de Villadiego, de Peñaflor (Sevilla)</p>
-            <span id="app-version-chip" class="version-chip" title="Versión de la aplicación">
-                <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
-                <span id="app-version-text"></span>
-            </span>
         </footer>
     </div>
 
