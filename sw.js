@@ -11,7 +11,7 @@
    un número (4 -> 5 -> 6...). Así se crea una caché nueva con los
    archivos actualizados y se borra automáticamente la anterior.
    ============================================================ */
-const APP_VERSION = '2.4';
+const APP_VERSION = '2.5';
 const CACHE_NAME = `eval-compesptec4-v${APP_VERSION}`;
 const ASSETS_TO_CACHE = [
   './',
